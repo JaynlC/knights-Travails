@@ -44,12 +44,15 @@ def knight_moves(start_position, end_position)
   knight_start_position = knight_board_position(start_position, board)
   knight_start_position.nil? ? nil : knight_start_position
   next_positions = next_moves(start_position)
-  # puts "#{next_positions}"
+  puts "#{next_positions}"
   level_order_traversal(start_position, next_positions, end_position)
 end
 
 def next_moves(curr_position, start_position = nil)
   row, column = curr_position
+  p row
+  p column
+  p start_position
   new_moves = []
   (1..2).each do |i|
     j = 1
@@ -70,6 +73,8 @@ def level_order_traversal(start_position, first_moves, end_position)
   end
   # puts "#{parent_move}"
   queue = first_moves
+  p "first queue = #{queue}"
+ 
   current_moves = []
   current_moves << start_position
 
@@ -80,33 +85,44 @@ def level_order_traversal(start_position, first_moves, end_position)
       current_moves << check_move
       queue = []
     else
-      child_moves = next_moves(check_move, start_position)
-      child_moves.each do |move| 
+      p "This is Queue: #{queue}"
+      p parent_move
+      previous_move_investigated = queue.shift
+      break if previous_move_investigated.nil?
+
+      previous_move_children = next_moves(previous_move_investigated, start_position)
+      previous_move_children.each do |move| 
         unless parent_move.include?(move)
           queue << move
-          parent_move[move] = check_move
+          parent_move[move] = previous_move_investigated
           # puts "#{parent_move}"
         end
       end
     end
   end
+  parent_move
+  # parent_move.fetch(end_position)
   evaluate_path(start_position, parent_move, end_position)
 end
 
 def evaluate_path(start_position, parent_move_hash, end_position)
-  all_moves = [end_position]
-  last_move = parent_move_hash.fetch(end_position)
-  all_moves << last_move
-  puts "#{last_move}"
   p parent_move_hash
-  if last_move == start_position
+  all_moves = [end_position]
+  previous_move = parent_move_hash.fetch(end_position)
+  all_moves << previous_move
+  puts "#{previous_move}"
+  
+  if previous_move == start_position
     all_moves.reverse
   else
-    loop do
-      all_moves << parent_move_hash.fetch(last_move)
-      break if all_moves.last == start_position
+    until all_moves.last == start_position
+      fetch_move = parent_move_hash.fetch(previous_move)
+      all_moves << fetch_move
+      previous_move = fetch_move
     end
+    puts "The knight took #{all_moves.length - 1} turns!"
     all_moves.reverse
+    
   end
 end
 
@@ -114,5 +130,9 @@ def testing(start, end_pos)
   knight_moves(start, end_pos)
 end
 
-testing([3, 3], [0, 0])
-testing([3, 3], [2, 1])
+# testing([3, 3], [0, 0])
+# testing([0, 0], [3, 3])
+# testing([3, 3], [2, 1])
+# testing([0,0],[4,3])
+# testing([3,3],[4,3])
+testing([3,3],[4,3])
