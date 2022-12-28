@@ -3,13 +3,17 @@ def knight_moves(start_position, end_position)
   board = initialise_board(board_size)
   return invalid_position_prompt(start_position, end_position, board) unless check_valid_input?(start_position, end_position, board)
 
-  next_positions = next_moves(start_position)
-  parent_positions_hash = track_parent_positions(start_position, next_positions)
-  all_positions_array = level_order_traversal(start_position, next_positions, end_position, parent_positions_hash)
+  if start_position == end_position
+    knight_board_position([start_position], board, board_size)
+  else
+    next_positions = next_moves(start_position)
+    parent_positions_hash = track_parent_positions(start_position, next_positions)
+    all_positions_array = level_order_traversal(start_position, next_positions, end_position, parent_positions_hash)
 
-  puts "The path the Knight took is returned below:"
-  knight_board_position(all_positions_array, board, board_size)
-  all_positions_array
+    puts "The path the Knight took is returned below:"
+    knight_board_position(all_positions_array, board, board_size)
+    all_positions_array
+  end
 end
 
 def initialise_board(n)
@@ -79,14 +83,11 @@ def level_order_traversal(start_position, next_moves, end_position, parent_posit
       current_moves << check_move
       queue = []
     else
-      previous_move_investigated = queue.shift
-      break if previous_move_investigated.nil?
-
-      previous_move_children = next_moves(previous_move_investigated, start_position)
-      previous_move_children.each do |move| 
+      previous_move_children = next_moves(check_move, start_position)
+      previous_move_children.each do |move|
         unless parent_positions.include?(move)
           queue << move
-          parent_positions[move] = previous_move_investigated
+          parent_positions[move] = check_move
         end
       end
     end
@@ -144,4 +145,4 @@ end
 # knight_moves([0,0],[4,3])
 # knight_moves([3,3],[4,3])
 # knight_moves([-1,0],[0,0])
-knight_moves([3,3],[0,0])
+knight_moves([7,7],[0,0])
